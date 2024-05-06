@@ -7,7 +7,7 @@ import java.util.function.Consumer
 
 class OrgUnitValidatorTest {
     @Test
-    fun shouldDetectDuplicate() {
+    fun shouldDetectDuplicates() {
         val rows = createRows(
             row(code("C1")),
             row(code("C1")),
@@ -24,7 +24,7 @@ class OrgUnitValidatorTest {
     }
 
     @Test
-    fun shouldOverlappingRows() {
+    fun shouldDetectOverlaps() {
         val rows = createRows(
             row(from("2018-01-01"), to("2018-01-31")),
             row(from("2018-01-10"), to("2018-01-15")),
