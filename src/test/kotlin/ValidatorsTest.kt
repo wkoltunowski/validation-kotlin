@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.function.Consumer
 
-class OrgUnitValidatorTest {
+class ValidatorsTest {
     @Test
     fun shouldDetectDuplicates() {
         val rows = createRows(
@@ -15,7 +15,7 @@ class OrgUnitValidatorTest {
             row(code("C3"))
         )
 
-        rows.validate()
+        DuplicateCodeValidator().validate(rows)
 
         assertThat(rows[0].validationResults()).containsOnly("msg.duplicate.code")
         assertThat(rows[1].validationResults()).containsOnly("msg.duplicate.code")
@@ -31,27 +31,20 @@ class OrgUnitValidatorTest {
             row(from("2018-02-01"), to("2018-02-20")),
         )
 
-        rows.validate()
+        OverlappingValidatorValidator().validate(rows)
 
-        assertThat(rows[0].validationResults()).containsOnly("msg.overlapping.code")
-        assertThat(rows[1].validationResults()).containsOnly("msg.overlapping.code")
+        assertThat(rows[0].validationResults()).containsOnly("msg.overlapping")
+        assertThat(rows[1].validationResults()).containsOnly("msg.overlapping")
         assertThat(rows[2].validationResults()).isEmpty()
     }
 
     private fun createRows(vararg rows: Row): List<Row> = rows.toList()
 
-    private fun List<Row>.validate() {
-        OrgUnitValidator().validate(this)
-    }
+    private fun from(from: String) = Consumer<MutableMap<String, Any?>> { it["from"] = date(from) }
 
-    private fun from(from: String): Consumer<MutableMap<String, Any?>> =
-        Consumer { it["from"] = date(from) }
+    private fun to(to: String?) = Consumer<MutableMap<String, Any?>> { it["to"] = to?.let { date(it) } }
 
-    private fun to(to: String?): Consumer<MutableMap<String, Any?>> =
-        Consumer { it["to"] = to?.let { date(it) } }
-
-    private fun code(value: String?): Consumer<MutableMap<String, Any?>> =
-        Consumer { it["code"] = value }
+    private fun code(value: String?): Consumer<MutableMap<String, Any?>> = Consumer { it["code"] = value }
 
     private fun date(day: String): LocalDate = LocalDate.parse(day)
 
