@@ -1,17 +1,18 @@
 package com.falco.workshop.validation
 
+import java.time.LocalDate
+
 interface RowValidator {
     fun validate(rows: List<Row>)
 }
 
-class Row(private val attributes: Map<String, Any?>) {
-    private val validationResults: MutableSet<String> = mutableSetOf()
+class Row(val code: String?, val from: LocalDate?, val to: LocalDate?) {
 
-    fun validationResults(): Set<String> = validationResults
+    private val validationMessages = mutableSetOf<String>()
 
-    fun addValidationMessages(validationMessages: Collection<String>) {
-        validationResults += validationMessages
+    fun validationMessages(): Set<String> = validationMessages.toSet()
+
+    fun addValidationMessage(message: String) {
+        validationMessages += message
     }
-
-    fun <T> readAs(property: String): T? = attributes[property] as T?
 }

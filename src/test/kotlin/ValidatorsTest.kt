@@ -1,56 +1,45 @@
 package com.falco.workshop.validation
 
+import DuplicateValidatorJava
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.util.function.Consumer
 
 class ValidatorsTest {
     @Test
     fun shouldDetectDuplicates() {
-        val rows = createRows(
-            row(code("C1")),
-            row(code("C1")),
-            row(code("C2")),
-            row(code("C3"))
+        val rows = listOf(
+            row("C1"),
+            row("C1"),
+            row("C2"),
+            row("C3")
         )
 
-        DuplicateCodeValidator().validate(rows)
+        DuplicateValidatorJava().validate(rows)
 
-        assertThat(rows[0].validationResults()).containsOnly("msg.duplicate.code")
-        assertThat(rows[1].validationResults()).containsOnly("msg.duplicate.code")
-        assertThat(rows[2].validationResults()).isEmpty()
-        assertThat(rows[3].validationResults()).isEmpty()
+        assertThat(rows[0].validationMessages()).containsOnly("msg.duplicate.code")
+        assertThat(rows[1].validationMessages()).containsOnly("msg.duplicate.code")
+        assertThat(rows[2].validationMessages()).isEmpty()
+        assertThat(rows[3].validationMessages()).isEmpty()
     }
 
     @Test
     fun shouldDetectOverlaps() {
-        val rows = createRows(
-            row(from("2018-01-01"), to("2018-01-31")),
-            row(from("2018-01-10"), to("2018-01-15")),
-            row(from("2018-02-01"), to("2018-02-20")),
+        val rows = listOf(
+            row(from = "2018-01-01", to = "2018-01-31"),
+            row(from = "2018-01-10", to = "2018-01-15"),
+            row(from = "2018-02-01", to = "2018-02-20"),
         )
 
         OverlappingValidatorValidator().validate(rows)
 
-        assertThat(rows[0].validationResults()).containsOnly("msg.overlapping")
-        assertThat(rows[1].validationResults()).containsOnly("msg.overlapping")
-        assertThat(rows[2].validationResults()).isEmpty()
+        assertThat(rows[0].validationMessages()).containsOnly("msg.overlapping")
+        assertThat(rows[1].validationMessages()).containsOnly("msg.overlapping")
+        assertThat(rows[2].validationMessages()).isEmpty()
     }
 
-    private fun createRows(vararg rows: Row): List<Row> = rows.toList()
+    private fun row(code: String? = null, from: String? = null, to: String? = null) =
+        Row(code, from?.toLocalDate(), to?.toLocalDate())
 
-    private fun from(from: String) = Consumer<MutableMap<String, Any?>> { it["from"] = date(from) }
-
-    private fun to(to: String?) = Consumer<MutableMap<String, Any?>> { it["to"] = to?.let { date(it) } }
-
-    private fun code(value: String?): Consumer<MutableMap<String, Any?>> = Consumer { it["code"] = value }
-
-    private fun date(day: String): LocalDate = LocalDate.parse(day)
-
-    private fun row(vararg consumers: Consumer<MutableMap<String, Any?>>): Row {
-        val attributesMap = mutableMapOf<String, Any?>()
-        consumers.forEach { it.accept(attributesMap) }
-        return Row(attributesMap)
-    }
+    private fun String.toLocalDate() = LocalDate.parse(this)
 }
