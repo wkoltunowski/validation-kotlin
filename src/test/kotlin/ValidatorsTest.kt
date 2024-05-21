@@ -31,7 +31,7 @@ class ValidatorsTest {
             row(from = "2018-02-01", to = "2018-02-20"),
         )
 
-        OverlappingValidatorValidator().validate(rows)
+        OverlappingValidator().validate(rows)
 
         assertThat(rows[0].validationMessages()).containsOnly("msg.overlapping")
         assertThat(rows[1].validationMessages()).containsOnly("msg.overlapping")

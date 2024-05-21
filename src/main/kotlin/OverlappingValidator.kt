@@ -1,6 +1,6 @@
 package com.falco.workshop.validation
 
-class OverlappingValidatorValidator : RowValidator {
+class OverlappingValidator : RowValidator {
     override fun validate(rows: List<Row>) {
     }
 }
